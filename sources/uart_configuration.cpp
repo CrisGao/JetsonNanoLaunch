@@ -1,9 +1,8 @@
 #include "uart_configuration.h"
 #include <stdio.h>
 
-
-
 int8_t jetsonSerial::transceiver =0;
+
 int jetsonSerial::fd =0;
 
 double VehicleSpeed = 0.00;
@@ -12,16 +11,17 @@ jetsonSerial::jetsonSerial()
 {
        
 };
+
 jetsonSerial::~jetsonSerial()
 {
        pthread_exit(&uart_thread_id);
+
        UART0_Close(fd);
 }
+
 pthread_t jetsonSerial::startThread()
 {
-             
-        
-      
+
         if(pthread_create(&uart_thread_id,NULL,CallGet_Speed,NULL))
         {
             std::cout<<"uart_thread create error!"<<std::endl;
@@ -37,9 +37,9 @@ pthread_t jetsonSerial::startThread()
 }
 void jetsonSerial::Transceriver_UART_init(char *port, int speed,int flow_ctrl,int databits,int stopbits,int parity)
 {
-      
 
-        transceiver = IM_CreateTransceiverDynamic(50, 0, 50, 0); //创建接收器
+       transceiver = IM_CreateTransceiverDynamic(50, 0, 50, 0); //创建接收器
+
        if (!ResetReceiverCipherTable(transceiver, CIPHER_TABLE))
        {
               std::cout << "had success load tabel" << std::endl;
@@ -48,6 +48,7 @@ void jetsonSerial::Transceriver_UART_init(char *port, int speed,int flow_ctrl,in
        fd = UART0_Open(fd,port);
 
        int err;
+
         do
        {
               err = UART0_Init( fd,9600, 0, 8, 1, 'N'); 
@@ -64,9 +65,10 @@ void* CallGet_Speed(void *ptr)
        while(1)
        {
 	      
-              uint8_t  source,target,cmd;
-              uint8_t format, length;
+              uint8_t  source,target,cmd,format, length;
+
               void * p_data = NULL;
+
               uint32_t received_time;
               
               uint16_t len = temp.UART0_Recv(temp.fd,temp.receiv_buf,20);
@@ -74,22 +76,19 @@ void* CallGet_Speed(void *ptr)
               if(IM_DataReceive(temp.transceiver, temp.receiv_buf, len, NULL, 0, 20) > 0)
               {
 
-              //注意必须未防止“死包”堆积，必须用while
+                     //注意必须未防止“死包”堆积，必须用while
                      while(IM_SpecialGroupGetReceivedPacket(temp.transceiver, 0, &source, &target, &cmd, &p_data,&length, &received_time) > 0)
                      {
                             if(cmd==0x80)//判断指令是否为实时信息反馈
                      {                  
                             temp.GetInfo = *(CAR_INFO*)p_data;
+
                             VehicleSpeed=(int)temp.GetInfo.speed*0.01;
-                            //std::cout<<"speedParams:"<<VehicleSpeed<<std::endl;
+              
                             usleep(100000);
-                           //sleep(1);
+                           
                      }
-                     else
-                     {
-                            //std::cout<<"cannot receiver speed data"<<std::endl;
-                            
-                     }
+                   
                             IM_FreeReceivedPacket(temp.transceiver);
        
                      }

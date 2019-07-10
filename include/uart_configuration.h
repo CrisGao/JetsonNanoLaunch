@@ -76,29 +76,37 @@ class jetsonSerial
 {
    public:
        jetsonSerial();
+
        ~jetsonSerial();
 
        void Transceriver_UART_init(char *port, int speed,int flow_ctrl,int databits,int stopbits,int parity);
+
        int UART0_Open(int fd,char* port);
+
        void UART0_Close(int fd);
+
        int UART0_Set(int fd,int speed,int flow_ctrl,int databits,int stopbits,int parity);
+
        int UART0_Recv(int fd,uint8_t *rcv_buf,int data_len);
+
        int UART0_Send(int fd,char *send_buf,int data_len);
+
        int UART0_Init(int fd, int speed,int flow_ctrl,int databits,int stopbits,int parity);
-       //void CallGet_Speed();
-       
 
        pthread_t startThread();
 
-
        uint8_t receiv_buf[100];
+
        CAR_INFO GetInfo;
+
        static int8_t transceiver;
+
        static int fd;//文件描述符
      
 
    private:
         pthread_t uart_thread_id;
+        
         static const int SPEED = 0; 
 
 
