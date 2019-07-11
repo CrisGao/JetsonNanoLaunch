@@ -28,6 +28,7 @@ bool ifshowErrorRoad = false;
 
 VideoImg::VideoImg()
 {
+
 }
 
 VideoImg::~VideoImg()
@@ -75,7 +76,7 @@ bool VideoImg::startCamera()
 	if (ifshow) //imshow current speed
 	{
 
-		cv::putText(img, imshowFilename, cv::Point(50, 60), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 23, 0), 4, 8);
+		cv::putText(img, imshowFilename, cv::Point(800, 60), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 23, 0), 4, 8);
 	}
 	if (ifshowClassify) //initivate Classify class
 	{
@@ -155,11 +156,13 @@ void *WriteVideo_Speed(void *ptr)
 
 	fs.release();
 	writer.release();
+	
 }
 
 void VideoImg::delteThreadSources()
 {
 	ifshow = false;
+	
 }
 
 void VideoImg::saveImage()
@@ -187,7 +190,7 @@ pthread_t VideoImg::startThread_saveVideoSpeed()
 }
 
 /******classification work***************************/
-void VideoImg::Input_Key(int code)
+void VideoImg::Input_Key(int code)//此函数只是为了方便在主函数中调用
 {
 	ifCheck = Check_Road_Side(code);
 }
@@ -212,6 +215,7 @@ bool Check_Road_Side(int code)
 
 void *Classify_Work(void *ptr)
 {
+/**************initivate the Classifier Class**************/
 	ifshowClassify = true;
 
 	string model_file = "../data/deploy.prototxt";
@@ -222,10 +226,11 @@ void *Classify_Work(void *ptr)
 	newClassf = new Classifier(model_file, trained_file, mean_file, label_file); //为防止new多个对象，取消线程的时候delete对象。另一方面可以把类写成单例模式，但是一直报私有成员无法访问错误。
 	
 	ifshowClassify = false;
-
+/**************End**************/
 	while (1)
 	{
 		cv::Mat input_image;
+		cv::Mat ResizeImg;
 
 		pthread_cleanup_push(cleanup1, NULL);
 		pthread_mutex_lock(&Img_mutex);
@@ -253,8 +258,11 @@ void *Classify_Work(void *ptr)
 
 					std::string Road_errImage = "../ErrorImg/Side_Road_" + currentTime() + ".jpg";
 					std::cout << "BadImage is:" << Road_errImage << std::endl;
-					cv::imwrite(Road_errImage, img);
+					cv::resize(input_image,ResizeImg,cv::Size(512,512));
+					cv::imwrite(Road_errImage, ResizeImg);
 				}
+				else
+				ifshowErrorSide = false;
 			}
 			else //在机动车道行驶，保存检测结果为非机动车道的图像，控制按钮为"y"
 			{
@@ -266,13 +274,17 @@ void *Classify_Work(void *ptr)
 					ifshowErrorRoad = true;
 					std::string Side_errImage = "../ErrorImg/Road_Side_" + currentTime() + ".jpg";
 					std::cout << "BadImage is:" << Side_errImage << std::endl;
-					cv::imwrite(Side_errImage, img);
+					cv::resize(input_image,ResizeImg,cv::Size(512,512));
+					cv::imwrite(Side_errImage, input_image);
 				}
+				else
+				ifshowErrorRoad = false;
 			}
 		}
 
 		usleep(50000);
 	}
+	
 }
 
 Prediction GetPreScore_Max(cv::Mat Input_img)
@@ -328,6 +340,6 @@ void VideoImg::deleteMutexSources()
 	delete newClassf;
 
 	newClassf = NULL; //释放申请的对象内存和指向
-
-	pthread_mutex_destroy(&Img_mutex);
+	
+	//pthread_mutex_destroy(&Img_mutex);
 }

@@ -35,16 +35,17 @@ enum InputKey
 	key_Y = 121,
 	key_ESC = 27
 };
+
 int main()
 {
 /*****************************usage note********************/
-std::cout << "invalid keycode." << std::endl
-					  << "usage is: V--save video" << std::endl
+std::cout << "usage is:" << std::endl
+					  << "V--save video" << std::endl
 					  << "S--save current image" << std::endl
 					  << "G--classify the image" << std::endl
 					  << "R--when ride on roadway,then save error image" << std::endl
-					  << "Y--when ride on sidewalk,then save error image" std::endl;
-/*****************************END********************/		
+					  << "Y--when ride on sidewalk,then save error image"<< std::endl;
+/*****************************END********************/	
 	pthread_t uart_id, videoImg_id, Classify_id;
 
 	jetsonSerial *JetsonUart = new jetsonSerial();
@@ -80,6 +81,7 @@ std::cout << "invalid keycode." << std::endl
 			if (!if_start_save)
 			{
 				ifsave = true;
+				
 			}
 			else
 			{
@@ -88,15 +90,18 @@ std::cout << "invalid keycode." << std::endl
 					if_start_save = false;
 					std::cout << "success exit the videoImg_thread" << std::endl;
 				}
-				pthread_join(videoImg_id, NULL);
+				pthread_join(videoImg_id,NULL);
+				if_start_save = false;
+				std::cout << "success exit the videoImg_thread" << std::endl;
 				JetsonVideo->delteThreadSources();
 			}
-			break :
+			break;
 
 		case key_G: 
 			if (!if_start_classify)
 			{
 				ifclassify = true;
+				
 			}
 			else
 			{
@@ -105,7 +110,7 @@ std::cout << "invalid keycode." << std::endl
 					if_start_classify = false;
 					std::cout << "success exit the classify_thread" << std::endl;
 				}
-				pthread_join(Classify_id, NULL);
+				pthread_join(Classify_id,NULL);
 				JetsonVideo->deleteMutexSources();
 			}
 			break;
@@ -125,7 +130,7 @@ std::cout << "invalid keycode." << std::endl
 			break;
 
 		default:
-			
+			break;
 		}
 
 		if (ifsave)
@@ -149,10 +154,6 @@ std::cout << "invalid keycode." << std::endl
 
 	pthread_join(uart_id, NULL);
 
-	pthread_exit(uart_id);
-	pthread_exit(videoImg_id);
-	pthread_exit(Classify_id);
-	pthread_exit(NULL);
 
 	return 0;
 }

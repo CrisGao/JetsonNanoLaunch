@@ -48,8 +48,8 @@ public:
     std::string sImageName;
     std::string imshowFilename;
     std::string imshowClassify = "Ready for Classification...";
-    std::string imshowErrorSide = "Error:Result of claasification is RoadWay ";
-    std::string imshowErrorRoad = "Error:Result of claasification is SideWalk ";
+    std::string imshowErrorSide = "Error:Result of clasification is RoadWay ";
+    std::string imshowErrorRoad = "Error:Result of clasification is SideWalk ";
 
 private:
     pthread_t VideoImg_thread_id;
