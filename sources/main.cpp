@@ -48,13 +48,13 @@ std::cout << "usage is:" << std::endl
 /*****************************END********************/	
 	pthread_t uart_id, videoImg_id, Classify_id;
 
-	jetsonSerial *JetsonUart = new jetsonSerial();
+	//jetsonSerial *JetsonUart = new jetsonSerial();
 	VideoImg *JetsonVideo = new VideoImg(); 
 
-	char *OpenFile = "/dev/ttyUSB0";
-	JetsonUart->Transceriver_UART_init(OpenFile, 9600, 0, 8, 1, 'N');
+	//char *OpenFile = "/dev/ttyUSB0";
+	//JetsonUart->Transceriver_UART_init(OpenFile, 9600, 0, 8, 1, 'N');
 
-	uart_id = JetsonUart->startThread();
+	//uart_id = JetsonUart->startThread();
 
 	if (!JetsonVideo->InitCamera(3280, 2464, 1280, 720, 20, 2))
 	{
@@ -116,11 +116,11 @@ std::cout << "usage is:" << std::endl
 			break;
 
 		case key_R:
-			JetsonVideo->Input_Key(114);
+			JetsonVideo->Input_Key(key_R);
 			break;
 
 		case key_Y:
-			JetsonVideo->Input_Key(121);
+			JetsonVideo->Input_Key(key_Y);
 			break;
 
 		case key_ESC:

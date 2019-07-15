@@ -7,11 +7,13 @@
 #include <sys/stat.h>
 #include <string>
 
+
 #include "utility.h"
 
 extern double VehicleSpeed;
 
 cv::Mat img;
+cv::Mat errorImg;
 
 pthread_mutex_t Img_mutex;
 
@@ -25,6 +27,7 @@ int isRoadSide;
 
 bool ifshowErrorSide = false;
 bool ifshowErrorRoad = false;
+
 
 VideoImg::VideoImg()
 {
@@ -73,6 +76,7 @@ bool VideoImg::startCamera()
 		return false;
 	}
 	/**********下面if判断为测试显示用********************/
+	errorImg = img.clone();
 	if (ifshow) //imshow current speed
 	{
 
@@ -121,7 +125,7 @@ void *WriteVideo_Speed(void *ptr)
 	Videoname = "../video/" + currentTime() + ".avi";
 	std::cout << "Videoname:" << Videoname << std::endl;
 
-	VideoSpeedFilename = "../Params/" + currentTime() + ".yml";
+	VideoSpeedFilename = "../Speeds/" + currentTime() + ".yml";
 	std::cout << "Save Speed YML in :" << VideoSpeedFilename << std::endl;
 
 	cv::FileStorage fs(VideoSpeedFilename, cv::FileStorage::WRITE);
@@ -219,7 +223,7 @@ void *Classify_Work(void *ptr)
 	ifshowClassify = true;
 
 	string model_file = "../data/deploy.prototxt";
-	string trained_file = "../data/2caffe_train_iter_70000.caffemodel";
+	string trained_file = "../data/3caffe_train_iter_560000.caffemodel";
 	string mean_file = "../data/mean.binaryproto";
 	string label_file = "../data/label.txt";
 
@@ -231,6 +235,8 @@ void *Classify_Work(void *ptr)
 	{
 		cv::Mat input_image;
 		cv::Mat ResizeImg;
+		std::string currentTimeStr;
+		
 
 		pthread_cleanup_push(cleanup1, NULL);
 		pthread_mutex_lock(&Img_mutex);
@@ -256,10 +262,11 @@ void *Classify_Work(void *ptr)
 				{
 					ifshowErrorSide = true;
 
-					std::string Road_errImage = "../ErrorImg/Side_Road_" + currentTime() + ".jpg";
+					std::string Road_errImage = "../ErrorImg/Side_Road_" + currentImageTime(currentTime()) + ".jpg";
 					std::cout << "BadImage is:" << Road_errImage << std::endl;
-					cv::resize(input_image,ResizeImg,cv::Size(512,512));
+					cv::resize(errorImg,ResizeImg,cv::Size(512,512));
 					cv::imwrite(Road_errImage, ResizeImg);
+					currentTimeStr = currentTime();
 				}
 				else
 				ifshowErrorSide = false;
@@ -272,10 +279,10 @@ void *Classify_Work(void *ptr)
 				{
 
 					ifshowErrorRoad = true;
-					std::string Side_errImage = "../ErrorImg/Road_Side_" + currentTime() + ".jpg";
+					std::string Side_errImage = "../ErrorImg/Road_Side_" + currentImageTime(currentTime()) + ".jpg";
 					std::cout << "BadImage is:" << Side_errImage << std::endl;
-					cv::resize(input_image,ResizeImg,cv::Size(512,512));
-					cv::imwrite(Side_errImage, input_image);
+					cv::resize(errorImg,ResizeImg,cv::Size(512,512));
+					cv::imwrite(Side_errImage, ResizeImg);
 				}
 				else
 				ifshowErrorRoad = false;
