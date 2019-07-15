@@ -2,6 +2,7 @@
 #include<algorithm>
 #include <vector>
  
+Classifier* Classifier::m_pInstance = nullptr;
 
 Classifier::Classifier(const string& model_file,
                        const string& trained_file,

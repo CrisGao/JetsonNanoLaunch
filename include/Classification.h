@@ -21,7 +21,23 @@ typedef std::pair<string, float> Prediction;
 class Classifier
 {
 public:
-  Classifier(const string &model_file,
+  /***设置成单例模式，避免每次都需要重新加载模型**/
+  static Classifier* getInstance(const string &model_file,
+             const string &trained_file,
+             const string &mean_file,
+             const string &label_file)
+	{
+		if(m_pInstance == NULL)
+		{
+			m_pInstance = new Classifier(model_file,
+           					    trained_file,
+            					    mean_file,
+             					    label_file);
+			return m_pInstance;
+		}
+	}
+
+  Classifier (const string &model_file,
              const string &trained_file,
              const string &mean_file,
              const string &label_file);
@@ -29,6 +45,9 @@ public:
   std::vector<Prediction> Classify(const cv::Mat &img, int N = 5);
 
 private:
+	
+  static Classifier* m_pInstance;
+
   void SetMean(const string &mean_file);
 
   std::vector<float> Predict(const cv::Mat &img);
