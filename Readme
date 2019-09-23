@@ -1,0 +1,15 @@
+该版本为完整的测试版本，音频触发逻辑通过HDMI连接的显示屏上的输出音频。
+
+
+
+该版本声音通过外接显示屏上的音频输出来触发的。在连接上显示屏后，需要先设置成系统声音Output为HDMI
+程序中通过
+#include "stdlib.h"
+voidPlay()
+{
+  system("play 6601.wav")
+}
+引用sox软件通过指令play来播放6601.wav音频。所以需要预先安装sox
+sudo apt-get install sox
+sudo apt-get install libsox-fmt-all //安装支持所有格式的库
+若提示错误，可以更换为清华源进行安装
